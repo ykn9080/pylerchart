@@ -9,148 +9,113 @@ const Pchart = () => {
   const [cum, setCum] = useState(false);
 
   useEffect(() => {
-    let cumnum = 0;
-
-    setChartData({
-      labels: chartdt.history.map((row) => row.date),
-      data: chartdt.history.map((row) => row.value),
-      datacum: chartdt.history.map((row) => {
-        cumnum += row.value;
-        return cumnum;
-      }),
+    let cumnum = 0,
+      lblDt = [],
+      dayDt = [],
+      cumDt = [];
+    chartdt.history.map((row) => {
+      lblDt.push(row.date);
+      dayDt.push(row.value);
+      cumnum += row.value;
+      cumDt.push(cumnum);
     });
-  }, []);
-
-  const options = {
-    responsive: true,
-
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Chart.js Line Chart",
-      },
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true,
-              callback: function (value) {
-                return `£${value}k`;
-              },
-            },
-          },
-        ],
-      },
-    },
-  };
+    setChartData({
+      labels: lblDt,
+      data: dayDt,
+      datacum: cumDt,
+    });
+  }, [cum]);
 
   const labels = chartData?.labels;
-
-  const data = chartData
-    ? {
-        labels,
-        datasets: [
-          {
-            label: "Dataset 1",
-            data: cum ? chartData.datacum : chartData.data,
-            // data: [1, 2, 4, 1, 6, 3, 8],
-            borderColor: "rgb(255, 99, 132)",
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-          },
-        ],
-      }
-    : null;
 
   function setActiveLink(setActive) {
     if ($("a").hasClass("active")) $("a").removeClass("active");
     if (setActive) $("#" + setActive).addClass("active");
   }
-
+  console.log(cum);
   return (
     <div>
-      {data && (
-        <div className="container">
-          <div className="head">
-            <h4>
-              조회수 히스토리데이터<span>(최근 1년)</span>
-            </h4>
-            <div className="submenu">
-              <a
-                id="daily"
-                href="#"
-                className="active"
-                onClick={() => {
-                  setCum(false);
-                  setActiveLink("daily");
-                }}
-              >
-                일별데이터
-              </a>
-              <a
-                id="cum"
-                href="#"
-                onClick={() => {
-                  setCum(true);
-                  setActiveLink("cum");
-                }}
-              >
-                누적데이터
-              </a>
-            </div>
+      <div className="container">
+        <div className="head">
+          <h4>
+            조회수 히스토리데이터<span>(최근 1년)</span>
+          </h4>
+          <div className="submenu">
+            <a
+              id="daily"
+              href="#"
+              className="active"
+              onClick={() => {
+                setCum(false);
+                setActiveLink("daily");
+              }}
+            >
+              일별데이터
+            </a>
+            <a
+              id="cum"
+              href="#"
+              onClick={() => {
+                setCum(true);
+                setActiveLink("cum");
+              }}
+            >
+              누적데이터
+            </a>
           </div>
-          <Line
-            options={{
-              title: {
-                display: false,
-                text: "조회수 히스토리 데이터(최근 1년)",
-              },
-              scales: {
-                xAxes: [
-                  {
-                    ticks: {
-                      autoSkip: true,
-                      maxTicksLimit: 10,
-                      maxRotation: 0,
-                      minRotation: 0,
-                    },
-                  },
-                ],
-                yAxes: [
-                  {
-                    ticks: {
-                      beginAtZero: true,
-                      callback: function (value) {
-                        return cum
-                          ? `${value / 100000000}억`
-                          : `${value / 10000}만`;
-                      },
-                    },
-                  },
-                ],
-              },
-            }}
-            data={
-              chartData
-                ? {
-                    labels,
-                    datasets: [
-                      {
-                        label: "Dataset 1",
-                        data: cum ? chartData.datacum : chartData.data,
-                        // data: [1, 2, 4, 1, 6, 3, 8],
-                        borderColor: "rgb(255, 99, 132)",
-                        backgroundColor: "rgba(255, 99, 132, 0.5)",
-                      },
-                    ],
-                  }
-                : null
-            }
-          />
         </div>
-      )}
+        <Line
+          options={{
+            title: {
+              display: false,
+              text: "조회수 히스토리 데이터(최근 1년)",
+            },
+            legend: {
+              display: false,
+            },
+            scales: {
+              xAxes: [
+                {
+                  ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10,
+                    maxRotation: 0,
+                    minRotation: 0,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                    callback: function (value) {
+                      return cum
+                        ? `${value / 100000000}억`
+                        : `${value / 10000}만`;
+                    },
+                  },
+                },
+              ],
+            },
+          }}
+          data={
+            chartData
+              ? {
+                  labels,
+                  datasets: [
+                    {
+                      label: "Dataset 1",
+                      data: cum ? chartData.datacum : chartData.data,
+                      // data: [1, 2, 4, 1, 6, 3, 8],
+                      borderColor: "rgb(255, 99, 132)",
+                      backgroundColor: "rgba(255, 99, 132, 0.5)",
+                    },
+                  ],
+                }
+              : null
+          }
+        />
+      </div>
     </div>
   );
 };
