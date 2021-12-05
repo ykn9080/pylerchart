@@ -1,27 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import $ from "jquery";
 import { Line } from "react-chartjs-2";
 
 import chartdt from "./chartdata.json";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const Pchart = () => {
   const [chartData, setChartData] = useState();
@@ -29,6 +10,7 @@ const Pchart = () => {
 
   useEffect(() => {
     let cumnum = 0;
+
     setChartData({
       labels: chartdt.history.map((row) => row.date),
       data: chartdt.history.map((row) => row.value),
@@ -41,6 +23,7 @@ const Pchart = () => {
 
   const options = {
     responsive: true,
+
     plugins: {
       legend: {
         position: "top",
@@ -48,6 +31,18 @@ const Pchart = () => {
       title: {
         display: true,
         text: "Chart.js Line Chart",
+      },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              callback: function (value) {
+                return `£${value}k`;
+              },
+            },
+          },
+        ],
       },
     },
   };
@@ -69,14 +64,74 @@ const Pchart = () => {
       }
     : null;
 
+  function setActiveLink(setActive) {
+    if ($("a").hasClass("active")) $("a").removeClass("active");
+    if (setActive) $("#" + setActive).addClass("active");
+  }
+
   return (
-    <>
-      <button onClick={() => setCum(true)}>cum</button>
-      <button onClick={() => setCum(false)}>daily</button>
+    <div>
       {data && (
         <div className="container">
+          <div className="head">
+            <h4>
+              조회수 히스토리데이터<span>(최근 1년)</span>
+            </h4>
+            <div className="submenu">
+              <a
+                id="daily"
+                href="#"
+                className="active"
+                onClick={() => {
+                  setCum(false);
+                  setActiveLink("daily");
+                }}
+              >
+                일별데이터
+              </a>
+              <a
+                id="cum"
+                href="#"
+                onClick={() => {
+                  setCum(true);
+                  setActiveLink("cum");
+                }}
+              >
+                누적데이터
+              </a>
+            </div>
+          </div>
           <Line
-            options={options}
+            options={{
+              title: {
+                display: false,
+                text: "조회수 히스토리 데이터(최근 1년)",
+              },
+              scales: {
+                xAxes: [
+                  {
+                    ticks: {
+                      autoSkip: true,
+                      maxTicksLimit: 10,
+                      maxRotation: 0,
+                      minRotation: 0,
+                    },
+                  },
+                ],
+                yAxes: [
+                  {
+                    ticks: {
+                      beginAtZero: true,
+                      callback: function (value) {
+                        return cum
+                          ? `${value / 100000000}억`
+                          : `${value / 10000}만`;
+                      },
+                    },
+                  },
+                ],
+              },
+            }}
             data={
               chartData
                 ? {
@@ -96,7 +151,7 @@ const Pchart = () => {
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
